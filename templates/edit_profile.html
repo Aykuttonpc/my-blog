@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Profili Düzenle{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Profili Düzenle</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="text-center mb-4">
+                        {% if current_user.profile_pic %}
+                        <img src="{{ url_for('uploaded_image', filename=current_user.profile_pic) }}"
+                            alt="Current profile picture" class="profile-pic">
+                        {% else %}
+                        <img src="https://via.placeholder.com/150" alt="Default profile picture" class="profile-pic">
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="profile_pic" class="form-label">Profil Fotoğrafı</label>
+                        <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+                        <small class="text-muted">PNG, JPG veya GIF (Max. 16MB)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-posta Adresi</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                            value="{{ current_user.email }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Hakkımda</label>
+                        <textarea class="form-control" id="bio" name="bio"
+                            rows="4">{{ current_user.bio or '' }}</textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Profili Güncelle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

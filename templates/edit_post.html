@@ -1,24 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Yeni Yazı{% endblock %}
+{% block title %}{{ post.title }} - Düzenle{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card">
             <div class="card-header">
-                <h2 class="text-center">Yeni Yazı Oluştur</h2>
+                <h2 class="text-center">Yazıyı Düzenle</h2>
             </div>
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="title" class="form-label">Başlık</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ post.title }}"
+                            required>
                     </div>
 
                     <div class="mb-3">
                         <label for="content" class="form-label">İçerik</label>
-                        <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="10"
+                            required>{{ post.content }}</textarea>
                     </div>
 
                     <div class="mb-3">
@@ -26,7 +28,10 @@
                         <select class="form-select" id="category" name="category">
                             <option value="">Kategori seçin</option>
                             {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            <option value="{{ category.id }}" {% if post.category and post.category.id==category.id
+                                %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -38,7 +43,7 @@
                             <div class="col-md-3 col-sm-4 col-6">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}"
-                                        id="tag{{ tag.id }}">
+                                        id="tag{{ tag.id }}" {% if tag in post.tags %}checked{% endif %}>
                                     <label class="form-check-label" for="tag{{ tag.id }}">
                                         {{ tag.name }}
                                     </label>
@@ -50,18 +55,33 @@
 
                     <div class="mb-3">
                         <label for="image" class="form-label">Resim</label>
+                        {% if post.image_file %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('uploaded_image', filename=post.image_file) }}"
+                                alt="Current post image" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
                         <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         <small class="text-muted">PNG, JPG veya GIF (Max. 16MB)</small>
                     </div>
 
                     <div class="mb-3">
                         <label for="audio" class="form-label">Ses Dosyası</label>
+                        {% if post.audio_file %}
+                        <div class="mb-2">
+                            <audio controls class="w-100">
+                                <source src="{{ url_for('uploaded_audio', filename=post.audio_file) }}"
+                                    type="audio/mpeg">
+                                Tarayıcınız audio elementini desteklemiyor.
+                            </audio>
+                        </div>
+                        {% endif %}
                         <input type="file" class="form-control" id="audio" name="audio" accept="audio/*">
                         <small class="text-muted">MP3, WAV veya OGG (Max. 16MB)</small>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Yazıyı Yayınla</button>
+                        <button type="submit" class="btn btn-primary">Yazıyı Güncelle</button>
                     </div>
                 </form>
             </div>

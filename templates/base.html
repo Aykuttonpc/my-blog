@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %} - Kişisel Blog</title>
+    <title>{% block title %}{% endblock %} - Blog</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             padding-top: 5rem;
@@ -13,23 +14,108 @@
         }
 
         .blog-header {
+            padding: 3rem 0;
             margin-bottom: 2rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
         .blog-post {
             margin-bottom: 2rem;
-            background: white;
-            padding: 1.5rem;
+            padding: 2rem;
+            background-color: #fff;
             border-radius: 0.5rem;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .tags {
+            margin: 1rem 0;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            color: #495057;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .tag:hover {
+            background-color: #dee2e6;
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .comment {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            font-weight: 500;
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 5rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .flash-message {
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">Kişisel Blog</a>
+            <a class="navbar-brand" href="{{ url_for('home') }}">Blog</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -46,8 +132,24 @@
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Çıkış Yap</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            {% if current_user.profile_pic %}
+                            <img src="{{ url_for('uploaded_image', filename=current_user.profile_pic) }}" alt="Profile"
+                                class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% endif %}
+                            {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item"
+                                    href="{{ url_for('profile', username=current_user.username) }}">Profil</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('edit_profile') }}">Profili Düzenle</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Çıkış Yap</a></li>
+                        </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
@@ -62,19 +164,44 @@
         </div>
     </nav>
 
-    <main class="container">
+    <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
+        <div class="flash-message alert alert-{{ category }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
+    </div>
 
+    <main class="container">
         {% block content %}{% endblock %}
     </main>
 
+    <footer class="footer mt-5 py-3 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {{ now.year }} Blog. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Flash mesajlarını otomatik olarak kaldır
+        document.addEventListener('DOMContentLoaded', function () {
+            var flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                setTimeout(function () {
+                    message.classList.remove('show');
+                    setTimeout(function () {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
 </body>
 
 </html>
