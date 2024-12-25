@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
+<div class="blog-header">
+    <h1 class="display-4">Hoş Geldiniz</h1>
+    <p class="lead">Kişisel blog sayfama hoş geldiniz.</p>
+</div>
+
+{% for post in posts %}
+<article class="blog-post">
+    <h2>{{ post.title }}</h2>
+    <p class="text-muted">
+        {{ post.date_posted.strftime('%d-%m-%Y') }} tarihinde
+        {{ post.author.username }} tarafından yazıldı
+    </p>
+    <p>{{ post.content }}</p>
+</article>
+{% else %}
+<div class="alert alert-info">
+    Henüz blog yazısı bulunmamaktadır.
+</div>
+{% endfor %}
+{% endblock %}
